@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Prompts para IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals (Stone, Amber) -->
+    <!-- Application Structure Plan: A single-page application designed as an interactive "Prompt Explorer". A clean top navigation bar allows users to switch between three main views: "Estrutura Mestra", "Exemplos Completos", and the interactive "Blocos de Construção". The "Blocos" section features a two-column layout with a category selector on the left and dynamically loaded content cards on the right. This architecture transforms the static guide into a functional tool, allowing users to quickly find, combine, and copy specific text snippets to build their own prompts, which is more user-friendly than a long, scrollable document. -->
+    <!-- Visualization & Content Choices: The source report is entirely textual, so the primary "visualization" method is structured HTML content presented in clean, well-organized cards. Goal: Organize & Use. The primary interactions are section navigation and a "copy to clipboard" functionality on every text block and example. This directly supports the user's goal of assembling prompt components. Justification: This approach turns a passive reference document into an active, practical tool, enhancing usability and workflow efficiency. Method: Vanilla JavaScript for DOM manipulation and interaction; Tailwind CSS for layout and styling. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f4; /* stone-100 */
+        }
+        .active-nav {
+            background-color: #f59e0b; /* amber-500 */
+            color: white;
+        }
+        .active-sub-nav {
+            background-color: #fbbf24; /* amber-400 */
+            color: #44403c; /* stone-700 */
+        }
+        .content-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .content-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .copy-button {
+            transition: background-color 0.2s;
+        }
+        .copied {
+            background-color: #22c55e !important; /* green-500 */
+        }
+    </style>
+</head>
+<body class="text-stone-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-stone-900">Gerador de Prompts para IA</h1>
+            <p class="text-lg text-stone-600 mt-2">Um guia interativo para criar prompts de imagem detalhados e eficazes.</p>
+        </header>
+
+        <nav class="flex justify-center bg-white rounded-lg shadow-md p-2 mb-8 space-x-2">
+            <button id="nav-estrutura" class="nav-btn px-4 py-2 rounded-md font-semibold text-stone-700 hover:bg-amber-100 transition-colors active-nav">Estrutura Mestra</button>
+            <button id="nav-exemplos" class="nav-btn px-4 py-2 rounded-md font-semibold text-stone-700 hover:bg-amber-100 transition-colors">Exemplos Completos</button>
+            <button id="nav-blocos" class="nav-btn px-4 py-2 rounded-md font-semibold text-stone-700 hover:bg-amber-100 transition-colors">Blocos de Construção</button>
+        </nav>
+
+        <main id="main-content">
+            <!-- Content will be dynamically inserted here -->
+        </main>
+    </div>
+
+    <script>
+        const guideData = {
+            estrutura: {
+                title: "A Estrutura Mestra do Prompt (Hierarquia)",
+                description: "Para construir um prompt completo e eficaz, use a seguinte ordem que vai do geral para o específico, ajudando a IA a construir a imagem camada por camada.",
+                steps: [
+                    "**Estilo Fotográfico Geral:** Define a estética artística (ex: 'cinematic portrait').",
+                    "**Cena Principal e Sujeitos:** Descreve a ação e os protagonistas.",
+                    "**Paleta de Cores Dominante:** Estabelece o 'sentimento' cromático.",
+                    "**Ambiente e Contexto:** Detalha o local e os elementos do cenário.",
+                    "**Iluminação:** Especifica a fonte, a qualidade e a direção da luz.",
+                    "**Ângulo de Câmera e Composição:** Instruções sobre como 'fotografar' a cena.",
+                    "**Detalhes dos Personagens:** Detalhes individuais (etnia, vestuário, poses, expressões).",
+                    "**Objetos Específicos e Detalhes:** Adereços, texturas ou elementos de fundo.",
+                    "**Modificadores de Qualidade:** Termos que garantem a qualidade técnica (ex: 'photorealistic')."
+                ]
+            },
+            exemplos: [
+                {
+                    title: "Família no Natal (Intimidade e Calor)",
+                    prompt: "A cinematic portrait of a young family enjoying a cozy evening around a beautifully decorated Christmas tree, bathed in a warm, earthy color palette of deep reds, forest greens, and glowing golds. The scene takes place in a modern living room with a textured beige rug and a rustic stone fireplace with a gentle, crackling flame. Soft, ambient light emanates from the fire and twinkling string lights on the tree, creating a golden glow. Captured from an eye-level angle, the composition adheres to the rule of thirds, with the family grouped intimately on the left two-thirds of the frame and the illuminated Christmas tree filling the right third, creating a harmonious balance with shallow depth of field.\n\nThe African American mother, wearing a festive, deep cranberry red cashmere sweater with delicate snowflake embroidery and dark wash slim-fit jeans, is seated on the floor, her arm gently around her Latino husband. Her expression is one of serene contentment with a gentle, relaxed smile, as she watches her children. The Latino father, in a classic, soft red and green plaid flannel shirt and comfortable brown corduroy pants, is kneeling beside their biracial children, his face showing a warm, loving expression as he helps them.\n\nTheir biracial children (a boy and a girl, approximately 5 and 7 years old), dressed in matching, striped red and white holiday pajamas made of soft brushed cotton with little reindeer slippers, are kneeling excitedly on the rug, tearing wrapping paper. The boy's expression is one of wide-eyed surprise, with eyebrows raised and mouth slightly agape, as he uncovers a gift, while the girl's face shows a wide, open-mouthed laugh, eyes crinkled in genuine joy. Neatly wrapped gifts in gold and red paper are scattered in the foreground, adding to the festive atmosphere.\n\nPhotorealistic, ultra-detailed, high-resolution, sharp focus, professional photography, soft bokeh."
+                },
+                {
+                    title: "Família em Aventura (Dinâmica e Natureza)",
+                    prompt: "A realistic, documentary-style shot of a family of four hiking on a sun-drenched mountain trail in autumn, featuring a vibrant and energetic color palette of natural earth tones, rust oranges, and deep greens, accentuated by bright blues from the clear sky. The scene is set on a well-worn trail winding through a dense forest, with sunlight filtering through the canopy. The harsh, direct midday sun creates crisp shadows, highlighting textures on the ground. Captured from a low angle, the composition utilizes leading lines formed by the path, drawing the eye towards the family, who appear powerful and determined against the vast landscape.\n\nThe father, in a rugged, forest green waterproof hiking jacket made of performance fleece and durable khaki cargo pants paired with sturdy, deep brown leather hiking boots with red laces, is carrying their youngest child on his shoulders. His expression is one of determined focus, with a slight smile as he navigates the terrain. The mother, in a sleek, rust-orange lightweight puffer jacket and flexible black trekking leggings with waterproof grey trail shoes, walks ahead, looking back with a curious and attentive expression at her husband and child.\n\nTheir two children (a boy and a girl, approximately 8 and 12 years old), in miniature, muted blue windbreakers and small, practical hiking pants with colorful, child-sized hiking sneakers, are walking hand in hand slightly ahead. Their expressions are of open-mouthed laughter and genuine joy, as they playfully leap over a small puddle. The trail is covered with vibrant red and golden fallen leaves, and tall pine trees frame the path, creating natural vertical lines that add depth.\n\nPhotorealistic, ultra-detailed, high-resolution, sharp focus, professional photography, natural lighting."
+                }
+            ],
+            blocos: {
+                "Estilos Fotográficos": [
+                    { title: "Cinematográfico", content: "Cores ricas, iluminação dramática, composição narrativa, bokeh." },
+                    { title: "Realista / Documental", content: "Autenticidade, cores naturais, foco nítido, sensação de vida real." },
+                    { title: "Minimalista", content: "Simplicidade, espaço negativo, linhas limpas, cores neutras." },
+                    { title: "Vibrante / Pop Art", content: "Cores altamente saturadas, contrastes fortes, vibe energética." },
+                    { title: "Moody / Dramático", content: "Sombras profundas, alto contraste, mistério, intensidade." },
+                    { title: "Vintage / Retrô", content: "Granulação de filme, cores desaturadas/sépia, vazamentos de luz, nostalgia." },
+                    { title: "Editorial / Fashion", content: "Estilizado, poses elaboradas, iluminação precisa, pele impecável." }
+                ],
+                "Poses": [
+                    { title: "Conexão", content: "'The family is in a warm, collective embrace' / 'hands visibly intertwined.'" },
+                    { title: "Dinâmica", content: "'caught mid-giggle' / 'mid-air, spiking the ball.'" },
+                    { title: "Unidade", content: "'All family members are aligned, looking towards the camera' / 'seated closely on a large rock.'" },
+                    { title: "Cândida", content: "'The mother is gently adjusting the small apron on her daughter' / 'distracted by a distant fireworks display.'" }
+                ],
+                "Expressões Faciais": [
+                    { title: "Alegria", content: "'mouths wide open revealing teeth, and eyes crinkled in genuine joy.'" },
+                    { title: "Serenidade", content: "'a gentle, relaxed smile, and a soft, peaceful gaze.'" },
+                    { title: "Foco", content: "'a slight furrow in her brow as she deeply reads.'" },
+                    { title: "Admiração", content: "'eyes wide and mouths slightly agape as they take in the majestic panorama.'" }
+                ],
+                "Iluminação": [
+                    { title: "Luz Natural", content: "'golden light of the setting sun' / 'harsh, direct midday sun' / 'soft, diffused natural light.'" },
+                    { title: "Luz Artificial", content: "'warm, soft light from a fireplace' / 'cool fluorescent light' / 'vibrant neon signs.'" },
+                    { title: "Efeitos", content: "'glowing rim light around their silhouettes' / ''god rays' pierce through the dense canopy.'" }
+                ],
+                "Ângulos de Câmera": [
+                    { title: "Plano Geral", content: "'wide-angle shot... captures the entire family, small within the vastness.'" },
+                    { title: "Close-up", content: "'tight close-up shot... focuses on the young child\\'s face.'" },
+                    { title: "Ângulo Alto", content: "'captured from a subtle high angle, the shot looks down upon the family.'" },
+                    { title: "Ângulo Baixo", content: "'captured from a striking low angle, the father jumping to spike the ball appears monumental.'" },
+                    { title: "Nível dos Olhos", content: "'captured from an eye-level angle, the shot places the viewer directly among the family.'" }
+                ],
+                "Composição": [
+                    { title: "Regra dos Terços", content: "'composition strictly adheres to the rule of thirds, with the family positioned along the lower-right vertical line.'" },
+                    { title: "Linhas Guias", content: "'cobblestone street forms strong leading lines that curve gently, drawing the viewer\\'s eye.'" },
+                    { title: "Enquadramento Natural", content: "'The scene is naturally framed by the silhouette of tall, ancient pine trees.'" },
+                    { title: "Profundidade", content: "'uses layering: a bowl of flour... in the foreground, the family... in the middleground, and blurred shelves... in the background.'" }
+                ]
+            }
+        };
+
+        const mainContent = document.getElementById('main-content');
+        const navButtons = document.querySelectorAll('.nav-btn');
+
+        function formatText(text) {
+            return text.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-amber-600">$1</strong>');
+        }
+
+        function handleCopy(button, textToCopy) {
+            const originalText = button.innerHTML;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                button.innerHTML = 'Copiado! ✔';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('copied');
+                }, 1500);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+
+        function renderEstrutura() {
+            const data = guideData.estrutura;
+            mainContent.innerHTML = `
+                <section id="estrutura" class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-3xl font-bold mb-4">${data.title}</h2>
+                    <p class="text-stone-600 mb-6">${data.description}</p>
+                    <ol class="list-decimal list-inside space-y-3 text-lg">
+                        ${data.steps.map(step => `<li class="text-stone-700">${formatText(step)}</li>`).join('')}
+                    </ol>
+                </section>
+            `;
+        }
+        
+        function renderExemplos() {
+            mainContent.innerHTML = `
+                <section id="exemplos" class="space-y-6">
+                    <h2 class="text-3xl font-bold text-center">Exemplos de Prompts Completos</h2>
+                    ${guideData.exemplos.map(ex => `
+                        <div class="bg-white p-6 rounded-lg shadow-md content-card">
+                            <h3 class="text-2xl font-semibold mb-3">${ex.title}</h3>
+                            <p class="text-stone-700 whitespace-pre-wrap leading-relaxed bg-stone-100 p-4 rounded-md">${ex.prompt}</p>
+                            <button class="copy-button mt-4 px-4 py-2 bg-amber-500 text-white font-semibold rounded-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+                                Copiar Prompt 📋
+                            </button>
+                        </div>
+                    `).join('')}
+                </section>
+            `;
+            document.querySelectorAll('.copy-button').forEach((button, index) => {
+                button.addEventListener('click', () => handleCopy(button, guideData.exemplos[index].prompt));
+            });
+        }
+
+        function renderBlocos() {
+            const categories = Object.keys(guideData.blocos);
+            mainContent.innerHTML = `
+                <section id="blocos">
+                    <h2 class="text-3xl font-bold text-center mb-6">Blocos de Construção</h2>
+                    <div class="flex flex-col md:flex-row gap-8">
+                        <aside class="md:w-1/4">
+                            <div id="sub-nav-container" class="flex flex-row md:flex-col flex-wrap gap-2 sticky top-8">
+                                ${categories.map((cat, index) => `
+                                    <button class="sub-nav-btn w-full text-left px-4 py-3 rounded-md font-semibold text-stone-700 bg-white shadow-sm hover:bg-amber-100 transition-colors ${index === 0 ? 'active-sub-nav' : ''}" data-category="${cat}">
+                                        ${cat}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </aside>
+                        <div id="blocos-content" class="md:w-3/4">
+                            <!-- Cards will be rendered here -->
+                        </div>
+                    </div>
+                </section>
+            `;
+            renderBlocosContent(categories[0]);
+
+            document.querySelectorAll('.sub-nav-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelector('.active-sub-nav').classList.remove('active-sub-nav');
+                    e.currentTarget.classList.add('active-sub-nav');
+                    renderBlocosContent(e.currentTarget.dataset.category);
+                });
+            });
+        }
+        
+        function renderBlocosContent(category) {
+            const contentDiv = document.getElementById('blocos-content');
+            const data = guideData.blocos[category];
+            contentDiv.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    ${data.map((item, index) => `
+                        <div class="bg-white p-5 rounded-lg shadow-md content-card flex flex-col justify-between">
+                            <div>
+                                <h4 class="text-xl font-semibold mb-2">${item.title}</h4>
+                                <p class="text-stone-600">${item.content}</p>
+                            </div>
+                            <button class="copy-bloc-button mt-4 self-start px-3 py-1.5 bg-stone-200 text-stone-700 font-semibold rounded-md hover:bg-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+                                Copiar 📋
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+             document.querySelectorAll('.copy-bloc-button').forEach((button, index) => {
+                button.addEventListener('click', () => handleCopy(button, data[index].content));
+            });
+        }
+
+
+        function switchTab(targetId) {
+            navButtons.forEach(btn => {
+                if (btn.id === targetId) {
+                    btn.classList.add('active-nav');
+                } else {
+                    btn.classList.remove('active-nav');
+                }
+            });
+
+            if (targetId === 'nav-estrutura') {
+                renderEstrutura();
+            } else if (targetId === 'nav-exemplos') {
+                renderExemplos();
+            } else if (targetId === 'nav-blocos') {
+                renderBlocos();
+            }
+        }
+
+        navButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                switchTab(e.currentTarget.id);
+            });
+        });
+
+        // Initial render
+        renderEstrutura();
+    </script>
+</body>
+</html>
